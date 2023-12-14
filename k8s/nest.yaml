@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nest
+  labels:
+    app: nest
+spec:
+  ports:
+    - port: 3000
+  selector:
+    app: nest
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nest
+  labels:
+    app: nest
+spec:
+  selector:
+    matchLabels:
+      app: nest
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nest
+    spec:
+      containers:
+      - image: r32main/nest_app:latest
+        name: nest
+        ports:
+        - containerPort: 3000
+          name: nest
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/src/app/ormconfig.json
+          subPath: ormconfig.json
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ormconfig
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ormconfig
+data:
+  ormconfig.json: |
+    {
+      "type": "mysql",
+      "host": "mysql",
+      "port": 3306,
+      "username": "developer",
+      "password": "developer",
+      "database": "nestjsrealworld",
+      "entities": ["src/**/**.entity{.ts,.js}"],
+      "synchronize": true
+    }

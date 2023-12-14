@@ -1,0 +1,22 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Docker auth
+      run: echo ${{ secrets.DOCKERHUB_SECRET }} | docker login -u r32main --password-stdin
+    - name: Build the Docker image
+      run: export VERSION=$(jq -r .version package.json) && docker build . --file Dockerfile --tag r32main/nest_app:$VERSION.$GITHUB_RUN_ID
+    - name: Docker push
+      run: export VERSION=$(jq -r .version package.json) && docker push r32main/nest_app:$VERSION.$GITHUB_RUN_ID

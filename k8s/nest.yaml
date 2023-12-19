@@ -29,7 +29,7 @@ spec:
         app: nest
     spec:
       containers:
-      - image: r32main/nest_app:latest
+      - image: ahrechanychenko/nest-js-api:test-1
         name: nest
         ports:
         - containerPort: 3000
